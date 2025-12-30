@@ -1,0 +1,7 @@
+{
+  "name": "MON BILLET SECURISE",
+  "description": "Une application de billetterie en ligne sécurisée pour les voyageurs en Côte d'Ivoire. Réservez vos trajets en bus facilement auprès des meilleures compagnies.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
