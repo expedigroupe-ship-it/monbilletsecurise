@@ -24,6 +24,12 @@ const App: React.FC = () => {
   const [selectedSeats, setSelectedSeats] = useState<{ [number: string]: Gender }>({});
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   
+  // Search State
+  const [origin, setOrigin] = useState('');
+  const [destination, setDestination] = useState('');
+  const [departureDate, setDepartureDate] = useState(new Date().toISOString().split('T')[0]);
+  const [returnDate, setReturnDate] = useState('');
+
   // Auth Form State
   const [formData, setFormData] = useState({
     firstName: '',
@@ -36,8 +42,6 @@ const App: React.FC = () => {
 
   const [trips] = useState<Trip[]>(MOCK_TRIPS);
   const [vehicles] = useState<Vehicle[]>(MOCK_VEHICLES);
-  const [origin, setOrigin] = useState('');
-  const [destination, setDestination] = useState('');
   const [searchResults, setSearchResults] = useState<Trip[]>([]);
   const [myTickets, setMyTickets] = useState<Ticket[]>([]);
   const [chatInput, setChatInput] = useState('');
@@ -95,6 +99,10 @@ const App: React.FC = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!origin || !destination || !departureDate) {
+      alert("Veuillez remplir au moins le départ, l'arrivée et la date de départ.");
+      return;
+    }
     const filtered = trips.filter(t => 
       t.origin.toLowerCase() === origin.toLowerCase() && 
       t.destination.toLowerCase() === destination.toLowerCase()
@@ -110,7 +118,6 @@ const App: React.FC = () => {
       delete newSelected[seatNumber];
       setSelectedSeats(newSelected);
     } else {
-      // Prompt for gender or use a default, here we default to male but allow switching
       setSelectedSeats({ ...selectedSeats, [seatNumber]: 'MALE' });
     }
   };
@@ -136,6 +143,8 @@ const App: React.FC = () => {
       passengerName: `${user?.firstName} ${user?.lastName} (Siège ${num})`,
       seatNumber: num,
       bookingDate: new Date().toISOString(),
+      travelDate: departureDate,
+      returnDate: returnDate || undefined,
       qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${selectedTrip!.id}-${num}-${Date.now()}`,
       status: 'CONFIRMED',
       price: selectedTrip!.price
@@ -170,7 +179,7 @@ const App: React.FC = () => {
           </div>
           
           <div className="text-center mb-10">
-            <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">MON BILLET SECURISE</h1>
+            <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase text-center">MON BILLET SECURISE</h1>
             <p className="text-slate-500 text-sm font-medium mt-2">Votre voyage commence ici, en toute sécurité.</p>
           </div>
 
@@ -223,7 +232,7 @@ const App: React.FC = () => {
   }
 
   const renderHome = () => (
-    <div className="p-4 space-y-6 animate-in fade-in duration-500">
+    <div className="p-4 space-y-6 animate-in fade-in duration-500 pb-20">
       <div className="bg-gradient-to-br from-orange-600 to-orange-500 -mx-4 -mt-4 p-8 rounded-b-[3rem] text-white shadow-lg">
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -253,6 +262,36 @@ const App: React.FC = () => {
               </select>
             </div>
           </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Date de départ</label>
+              <div className="relative">
+                <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+                <input 
+                  type="date" 
+                  value={departureDate} 
+                  onChange={(e) => setDepartureDate(e.target.value)} 
+                  className="w-full text-xs font-bold bg-slate-50 py-2 pl-7 pr-2 rounded-lg outline-none border-none appearance-none"
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Date de retour <span className="text-[8px] opacity-60">(Optionnel)</span></label>
+              <div className="relative">
+                <Calendar className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={14} />
+                <input 
+                  type="date" 
+                  value={returnDate} 
+                  onChange={(e) => setReturnDate(e.target.value)} 
+                  className="w-full text-xs font-bold bg-slate-50 py-2 pl-7 pr-2 rounded-lg outline-none border-none appearance-none"
+                  min={departureDate || new Date().toISOString().split('T')[0]}
+                />
+              </div>
+            </div>
+          </div>
+
           <button type="submit" className="w-full bg-slate-900 text-white font-bold py-3 rounded-xl hover:bg-black transition flex items-center justify-center gap-2 text-sm shadow-md uppercase">
             <Search size={16} /> Rechercher un trajet
           </button>
@@ -265,19 +304,19 @@ const App: React.FC = () => {
           Location de véhicules
         </h3>
         <div className="grid grid-cols-3 gap-3">
-          <button onClick={() => setActiveTab(AppTab.RENTAL)} className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-1 group">
+          <button onClick={() => setActiveTab(AppTab.RENTAL)} className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-1 group active:scale-95 transition">
             <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center group-hover:scale-110 transition">
               <Car size={20} />
             </div>
             <span className="text-[10px] font-bold">Voiture</span>
           </button>
-          <button onClick={() => setActiveTab(AppTab.RENTAL)} className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-1 group">
+          <button onClick={() => setActiveTab(AppTab.RENTAL)} className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-1 group active:scale-95 transition">
             <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center group-hover:scale-110 transition">
               <Briefcase size={20} />
             </div>
             <span className="text-[10px] font-bold">Mini Bus</span>
           </button>
-          <button onClick={() => setActiveTab(AppTab.RENTAL)} className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-1 group">
+          <button onClick={() => setActiveTab(AppTab.RENTAL)} className="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center gap-1 group active:scale-95 transition">
             <div className="w-10 h-10 bg-orange-50 text-orange-600 rounded-full flex items-center justify-center group-hover:scale-110 transition">
               <Truck size={20} />
             </div>
@@ -290,7 +329,7 @@ const App: React.FC = () => {
         <div className="relative z-10">
           <h4 className="text-xl font-bold mb-1">Espace Partenaire</h4>
           <p className="text-[10px] opacity-70 mb-4">Gérez votre flotte et vos trajets en quelques clics.</p>
-          <button className="bg-orange-500 text-white px-4 py-2 rounded-xl text-[10px] font-bold shadow-lg uppercase">Devenir Partenaire</button>
+          <button className="bg-orange-500 text-white px-4 py-2 rounded-xl text-[10px] font-bold shadow-lg uppercase active:scale-95 transition">Devenir Partenaire</button>
         </div>
         <Building size={120} className="absolute -right-4 -bottom-4 text-white opacity-5" />
       </div>
@@ -298,17 +337,15 @@ const App: React.FC = () => {
   );
 
   const renderSeatSelection = () => (
-    <div className="p-4 space-y-6 animate-in slide-in-from-right duration-300">
+    <div className="p-4 space-y-6 animate-in slide-in-from-right duration-300 pb-20">
       <div className="flex items-center gap-3">
-        <button onClick={() => { setBookingStep('TRIP_SELECT'); setSelectedSeats({}); }} className="p-2 bg-white rounded-full shadow-sm text-slate-600 flex items-center gap-1">
+        <button onClick={() => { setBookingStep('TRIP_SELECT'); setSelectedSeats({}); }} className="p-2 bg-white rounded-full shadow-sm text-slate-600 flex items-center gap-1 active:scale-95 transition">
           <ChevronLeft size={20}/> <span className="text-xs font-bold">Retour</span>
         </button>
         <h2 className="font-bold text-lg">Choix des Sièges</h2>
       </div>
 
-      {/* Realistic Bus Panoramic Layout */}
       <div className="bg-slate-200 rounded-[3rem] p-4 shadow-inner border-4 border-slate-300 max-w-[320px] mx-auto overflow-hidden">
-        {/* Cockpit / Windshield */}
         <div className="bg-slate-400 h-12 rounded-t-[2.5rem] mb-6 relative overflow-hidden flex items-center justify-center border-b-4 border-slate-500">
            <div className="bg-slate-300 w-full h-2 absolute top-2 opacity-50"></div>
            <div className="w-8 h-8 bg-slate-800 rounded-full flex items-center justify-center text-white border-2 border-slate-600 ml-auto mr-12">
@@ -316,25 +353,21 @@ const App: React.FC = () => {
            </div>
         </div>
 
-        {/* Legend */}
         <div className="flex justify-between mb-6 px-4 py-2 bg-white/50 rounded-xl">
           <div className="flex items-center gap-1"><div className="w-3 h-3 bg-white border border-slate-300 rounded"></div><span className="text-[8px] font-bold">Libre</span></div>
           <div className="flex items-center gap-1"><div className="w-3 h-3 bg-blue-500 rounded"></div><span className="text-[8px] font-bold">Homme</span></div>
           <div className="flex items-center gap-1"><div className="w-3 h-3 bg-pink-500 rounded"></div><span className="text-[8px] font-bold">Femme</span></div>
         </div>
 
-        {/* Seats Container */}
         <div className="space-y-3 pb-8">
           {Array.from({ length: 11 }).map((_, row) => (
             <div key={row} className="flex justify-between items-center px-2">
-              {/* Left Side (2 seats) */}
               <div className="flex gap-1.5">
                 {[1, 2].map(col => {
                   const seatNum = (row * 4 + col).toString();
                   const seat = mockBusSeats.find(s => s.number === seatNum);
                   const isSelected = !!selectedSeats[seatNum];
                   const gender = selectedSeats[seatNum];
-
                   return (
                     <div key={seatNum} className="relative group">
                       <button
@@ -353,10 +386,7 @@ const App: React.FC = () => {
                         {isSelected && <span className="text-[7px] mt-0.5 opacity-80">{gender === 'MALE' ? 'H' : 'F'}</span>}
                       </button>
                       {isSelected && (
-                        <button 
-                          onClick={(e) => switchSeatGender(seatNum, e)}
-                          className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md border border-slate-100 z-10 hover:bg-slate-50"
-                        >
+                        <button onClick={(e) => switchSeatGender(seatNum, e)} className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md border border-slate-100 z-10 active:scale-95">
                            <UserCheck size={10} className={gender === 'MALE' ? 'text-blue-500' : 'text-pink-500'}/>
                         </button>
                       )}
@@ -364,18 +394,13 @@ const App: React.FC = () => {
                   );
                 })}
               </div>
-
-              {/* Aisle */}
               <div className="w-6 h-10 bg-slate-300/30 rounded-sm"></div>
-
-              {/* Right Side (2 seats) */}
               <div className="flex gap-1.5">
                 {[3, 4].map(col => {
                   const seatNum = (row * 4 + col).toString();
                   const seat = mockBusSeats.find(s => s.number === seatNum);
                   const isSelected = !!selectedSeats[seatNum];
                   const gender = selectedSeats[seatNum];
-
                   return (
                     <div key={seatNum} className="relative group">
                       <button
@@ -394,10 +419,7 @@ const App: React.FC = () => {
                         {isSelected && <span className="text-[7px] mt-0.5 opacity-80">{gender === 'MALE' ? 'H' : 'F'}</span>}
                       </button>
                       {isSelected && (
-                        <button 
-                          onClick={(e) => switchSeatGender(seatNum, e)}
-                          className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md border border-slate-100 z-10"
-                        >
+                        <button onClick={(e) => switchSeatGender(seatNum, e)} className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md border border-slate-100 z-10 active:scale-95">
                            <UserCheck size={10} className={gender === 'MALE' ? 'text-blue-500' : 'text-pink-500'}/>
                         </button>
                       )}
@@ -421,16 +443,16 @@ const App: React.FC = () => {
           onClick={() => setBookingStep('PAYMENT')}
           className={`px-8 py-3 rounded-2xl text-[10px] font-bold uppercase tracking-widest shadow-lg transition-all active:scale-95 ${Object.keys(selectedSeats).length > 0 ? 'bg-orange-600 text-white shadow-orange-100' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
         >
-          Payer
+          Suivant
         </button>
       </div>
     </div>
   );
 
   const renderPayment = () => (
-    <div className="p-4 space-y-6 animate-in slide-in-from-right duration-300">
+    <div className="p-4 space-y-6 animate-in slide-in-from-right duration-300 pb-20">
       <div className="flex items-center gap-3">
-        <button onClick={() => setBookingStep('SEAT_SELECT')} className="p-2 bg-white rounded-full shadow-sm text-slate-600 flex items-center gap-1">
+        <button onClick={() => setBookingStep('SEAT_SELECT')} className="p-2 bg-white rounded-full shadow-sm text-slate-600 flex items-center gap-1 active:scale-95 transition">
           <ChevronLeft size={20}/> <span className="text-xs font-bold">Retour</span>
         </button>
         <h2 className="font-bold text-lg">Caisse Sécurisée</h2>
@@ -443,7 +465,8 @@ const App: React.FC = () => {
           <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-medium opacity-70">
             <span className="flex items-center gap-1"><MapPin size={10}/> {selectedTrip?.origin} ➔ {selectedTrip?.destination}</span>
             <span className="flex items-center gap-1"><TicketIcon size={10}/> {Object.keys(selectedSeats).length} Ticket(s)</span>
-            <span className="flex items-center gap-1"><Clock size={10}/> Départ: {selectedTrip?.departureTime}</span>
+            <span className="flex items-center gap-1"><Clock size={10}/> {selectedTrip?.departureTime}</span>
+            <span className="flex items-center gap-1"><Calendar size={10}/> {departureDate} {returnDate ? `/ ${returnDate}` : ''}</span>
           </div>
         </div>
         <CreditCard size={100} className="absolute -right-8 -bottom-8 text-white opacity-5 rotate-12" />
@@ -462,7 +485,7 @@ const App: React.FC = () => {
               key={method.id}
               onClick={() => setPaymentMethod(method.id)}
               className={`
-                p-4 rounded-[1.5rem] border-2 transition flex items-center justify-between relative
+                p-4 rounded-[1.5rem] border-2 transition flex items-center justify-between relative active:scale-[0.98]
                 ${paymentMethod === method.id ? 'border-orange-600 bg-orange-50/20' : 'border-slate-100 bg-white shadow-sm'}
               `}
             >
@@ -493,10 +516,13 @@ const App: React.FC = () => {
       {activeTab === AppTab.SEARCH && (
         <>
           {bookingStep === 'TRIP_SELECT' && (
-            <div className="p-4 animate-in slide-in-from-bottom duration-300">
+            <div className="p-4 animate-in slide-in-from-bottom duration-300 pb-20">
               <div className="flex items-center gap-3 mb-6">
-                <button onClick={() => setActiveTab(AppTab.HOME)} className="p-2 bg-white rounded-full shadow-sm text-slate-600"><ChevronLeft size={20}/></button>
-                <h2 className="font-bold text-lg">Vols et Départs</h2>
+                <button onClick={() => setActiveTab(AppTab.HOME)} className="p-2 bg-white rounded-full shadow-sm text-slate-600 active:scale-95 transition"><ChevronLeft size={20}/></button>
+                <div className="flex flex-col">
+                  <h2 className="font-bold text-lg leading-tight">Vols et Départs</h2>
+                  <p className="text-[10px] text-slate-400 font-bold">{departureDate} {returnDate ? `- ${returnDate}` : ''}</p>
+                </div>
               </div>
               {searchResults.map(t => (
                 <div key={t.id} className="bg-white p-5 rounded-[2.5rem] mb-4 shadow-sm border border-slate-100 group hover:border-orange-200 transition">
@@ -523,7 +549,7 @@ const App: React.FC = () => {
                 <div className="text-center py-20 px-8 bg-white rounded-[2.5rem] border border-slate-100 mx-4">
                    <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-200"><Search size={32}/></div>
                    <p className="text-slate-400 text-sm font-medium">Aucun voyage trouvé pour ces villes.</p>
-                   <button onClick={() => setActiveTab(AppTab.HOME)} className="mt-4 text-orange-600 font-bold text-[10px] tracking-widest uppercase">Modifier ma recherche</button>
+                   <button onClick={() => setActiveTab(AppTab.HOME)} className="mt-4 text-orange-600 font-bold text-[10px] tracking-widest uppercase active:scale-95 transition">Modifier ma recherche</button>
                 </div>
               )}
             </div>
@@ -533,7 +559,7 @@ const App: React.FC = () => {
         </>
       )}
       {activeTab === AppTab.TICKETS && (
-        <div className="p-4 animate-in fade-in duration-500">
+        <div className="p-4 animate-in fade-in duration-500 pb-20">
           <h2 className="text-xl font-bold mb-6">Mes Voyages</h2>
           <div className="space-y-6">
             {myTickets.map(t => {
@@ -553,13 +579,13 @@ const App: React.FC = () => {
                         <p className="font-bold text-xs truncate">{trip?.origin} ➔ {trip?.destination}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">Siège</p>
-                        <p className="font-bold text-xs">N°{t.seatNumber}</p>
+                        <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">Date / Siège</p>
+                        <p className="font-bold text-xs">{t.travelDate} - N°{t.seatNumber}</p>
                       </div>
                       <div className="col-span-2 flex justify-between border-t border-slate-50 pt-4">
                         <div>
                           <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">Passager</p>
-                          <p className="font-bold text-xs text-orange-600">{t.passengerName}</p>
+                          <p className="font-bold text-xs text-orange-600 truncate max-w-[120px]">{t.passengerName}</p>
                         </div>
                         <div className="text-right">
                            <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">Prix</p>
@@ -581,7 +607,7 @@ const App: React.FC = () => {
               <div className="text-center py-24 px-10">
                  <div className="bg-white w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6 text-slate-100 shadow-inner"><TicketIcon size={40}/></div>
                  <p className="text-slate-400 text-sm font-medium">Votre historique de billets est vide.</p>
-                 <button onClick={() => setActiveTab(AppTab.HOME)} className="mt-4 text-orange-600 font-bold text-[10px] tracking-widest uppercase">Réserver mon premier trajet</button>
+                 <button onClick={() => setActiveTab(AppTab.HOME)} className="mt-4 text-orange-600 font-bold text-[10px] tracking-widest uppercase active:scale-95 transition">Réserver mon premier trajet</button>
               </div>
             )}
           </div>
@@ -596,7 +622,6 @@ const App: React.FC = () => {
               <span className="bg-orange-100 text-orange-600 px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-tighter">Cars</span>
             </div>
           </div>
-          
           <div className="space-y-4">
             {vehicles.map(v => (
               <div key={v.id} className="bg-white rounded-[2.5rem] overflow-hidden shadow-md border border-slate-100">
@@ -626,12 +651,11 @@ const App: React.FC = () => {
               </div>
             ))}
           </div>
-
           <div className="bg-slate-900 text-white p-8 rounded-[3rem] relative overflow-hidden shadow-2xl mt-8">
             <div className="relative z-10">
               <h4 className="text-2xl font-black mb-2 leading-tight">Espace Partenaire</h4>
               <p className="text-xs opacity-70 mb-6 max-w-[80%] leading-relaxed">Boostez votre activité en listant votre flotte sur la plateforme numéro 1 en Côte d'Ivoire.</p>
-              <button className="bg-orange-600 text-white px-6 py-3 rounded-2xl text-xs font-black shadow-lg shadow-orange-900/40 uppercase tracking-widest hover:bg-orange-500 transition">S'inscrire comme gérant</button>
+              <button className="bg-orange-600 text-white px-6 py-3 rounded-2xl text-xs font-black shadow-lg shadow-orange-900/40 uppercase tracking-widest hover:bg-orange-500 active:scale-95 transition">S'inscrire comme gérant</button>
             </div>
             <Building size={140} className="absolute -right-8 -bottom-8 text-white opacity-5 -rotate-12" />
           </div>
@@ -663,7 +687,7 @@ const App: React.FC = () => {
         </div>
       )}
       {activeTab === AppTab.PROFILE && (
-        <div className="p-4 space-y-6 animate-in slide-in-from-bottom duration-300">
+        <div className="p-4 space-y-6 animate-in slide-in-from-bottom duration-300 pb-20">
           <div className="bg-white p-8 rounded-[3rem] shadow-xl border border-slate-100 flex flex-col items-center relative overflow-hidden">
             <div className={`w-28 h-28 rounded-full flex items-center justify-center text-white text-4xl font-black mb-4 border-8 border-slate-50 shadow-2xl relative z-10 ${formData.gender === 'FEMALE' ? 'bg-pink-500 shadow-pink-100' : 'bg-blue-500 shadow-blue-100'}`}>
               {user?.firstName[0]}{user?.lastName[0]}
@@ -690,4 +714,3 @@ const App: React.FC = () => {
 };
 
 export default App;
-
