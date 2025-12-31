@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Home, Search, Ticket, User, MessageCircle, Car, Settings } from 'lucide-react';
-import { AppTab, UserRole } from '../types';
+import { AppTab, UserRole } from '../types.ts';
 
 interface LayoutProps {
   children: React.ReactNode;
