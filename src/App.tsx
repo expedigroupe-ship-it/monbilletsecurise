@@ -2,13 +2,13 @@
 import React, { useState, useMemo } from 'react';
 import Layout from './components/Layout.tsx';
 import { AppTab, Trip, Ticket, Vehicle, UserRole, UserProfile, BookingStep, Seat, Gender } from './types.ts';
-import { IVORIAN_CITIES, MOCK_TRIPS, COMPANIES, MOCK_VEHICLES } from './constants.ts';
+import { IVORIAN_CITIES, ABIDJAN_COMMUNES, MOCK_TRIPS, COMPANIES, MOCK_VEHICLES } from './constants.ts';
 import { 
   MapPin, Calendar, Search, ArrowRight, Star, Clock, Info, ShieldCheck, 
   ChevronRight, MessageSquare, Send, Sparkles, User, Ticket as TicketIcon, 
   Plus, TrendingUp, Users, Building, Truck, Briefcase, Trash2, Edit2, Car,
   Phone, Mail, Lock, LogOut, ChevronLeft, CreditCard, Wallet, Smartphone,
-  UserCheck
+  UserCheck, MapPinned
 } from 'lucide-react';
 import { getTravelAdvice } from './services/geminiService.ts';
 
@@ -26,7 +26,9 @@ const App: React.FC = () => {
   
   // Search State
   const [origin, setOrigin] = useState('');
+  const [originStation, setOriginStation] = useState('');
   const [destination, setDestination] = useState('');
+  const [destinationStation, setDestinationStation] = useState('');
   const [departureDate, setDepartureDate] = useState(new Date().toISOString().split('T')[0]);
   const [returnDate, setReturnDate] = useState('');
 
@@ -103,6 +105,15 @@ const App: React.FC = () => {
       alert("Veuillez remplir au moins le départ, l'arrivée et la date de départ.");
       return;
     }
+    if (origin === "Abidjan" && !originStation) {
+      alert("Veuillez préciser votre commune/gare de départ à Abidjan.");
+      return;
+    }
+    if (destination === "Abidjan" && !destinationStation) {
+      alert("Veuillez préciser votre commune/gare de descente à Abidjan.");
+      return;
+    }
+
     const filtered = trips.filter(t => 
       t.origin.toLowerCase() === origin.toLowerCase() && 
       t.destination.toLowerCase() === destination.toLowerCase()
@@ -145,6 +156,8 @@ const App: React.FC = () => {
       bookingDate: new Date().toISOString(),
       travelDate: departureDate,
       returnDate: returnDate || undefined,
+      originStation: origin === "Abidjan" ? originStation : origin,
+      destinationStation: destination === "Abidjan" ? destinationStation : destination,
       qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${selectedTrip!.id}-${num}-${Date.now()}`,
       status: 'CONFIRMED',
       price: selectedTrip!.price
@@ -248,20 +261,48 @@ const App: React.FC = () => {
         <form onSubmit={handleSearch} className="bg-white rounded-2xl p-4 shadow-xl text-slate-800 space-y-3 mt-4">
           <div className="grid grid-cols-2 gap-2">
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">Départ</label>
-              <select value={origin} onChange={(e) => setOrigin(e.target.value)} className="text-sm font-bold bg-slate-50 p-2 rounded-lg outline-none">
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Départ (Ville)</label>
+              <select value={origin} onChange={(e) => {setOrigin(e.target.value); if(e.target.value !== 'Abidjan') setOriginStation('');}} className="text-sm font-bold bg-slate-50 p-2 rounded-lg outline-none">
                 <option value="">Ville</option>
                 {IVORIAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-[10px] font-bold text-slate-400 uppercase">Arrivée</label>
-              <select value={destination} onChange={(e) => setDestination(e.target.value)} className="text-sm font-bold bg-slate-50 p-2 rounded-lg outline-none">
+              <label className="text-[10px] font-bold text-slate-400 uppercase">Arrivée (Ville)</label>
+              <select value={destination} onChange={(e) => {setDestination(e.target.value); if(e.target.value !== 'Abidjan') setDestinationStation('');}} className="text-sm font-bold bg-slate-50 p-2 rounded-lg outline-none">
                 <option value="">Ville</option>
                 {IVORIAN_CITIES.map(c => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
           </div>
+
+          {/* Sous-sélection si Abidjan est choisi */}
+          {(origin === "Abidjan" || destination === "Abidjan") && (
+            <div className="grid grid-cols-2 gap-2 animate-in slide-in-from-top-2">
+              <div className="flex flex-col gap-1">
+                {origin === "Abidjan" && (
+                  <>
+                    <label className="text-[10px] font-bold text-orange-600 uppercase">Gare de départ (Abidjan)</label>
+                    <select value={originStation} onChange={(e) => setOriginStation(e.target.value)} className="text-[11px] font-bold bg-orange-50 p-2 rounded-lg outline-none border border-orange-100">
+                      <option value="">Choisir Commune/Gare</option>
+                      {ABIDJAN_COMMUNES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </>
+                )}
+              </div>
+              <div className="flex flex-col gap-1">
+                {destination === "Abidjan" && (
+                  <>
+                    <label className="text-[10px] font-bold text-orange-600 uppercase">Gare de descente (Abidjan)</label>
+                    <select value={destinationStation} onChange={(e) => setDestinationStation(e.target.value)} className="text-[11px] font-bold bg-orange-50 p-2 rounded-lg outline-none border border-orange-100">
+                      <option value="">Choisir Commune/Gare</option>
+                      {ABIDJAN_COMMUNES.map(c => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-2">
             <div className="flex flex-col gap-1">
@@ -463,7 +504,7 @@ const App: React.FC = () => {
           <p className="text-[10px] font-bold text-orange-400 uppercase tracking-widest mb-1">Résumé de la commande</p>
           <p className="text-3xl font-black">{(Object.keys(selectedSeats).length * (selectedTrip?.price || 0)).toLocaleString()} <small className="text-sm">FCFA</small></p>
           <div className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-[10px] font-medium opacity-70">
-            <span className="flex items-center gap-1"><MapPin size={10}/> {selectedTrip?.origin} ➔ {selectedTrip?.destination}</span>
+            <span className="flex items-center gap-1"><MapPin size={10}/> {origin === "Abidjan" ? originStation : origin} ➔ {destination === "Abidjan" ? destinationStation : destination}</span>
             <span className="flex items-center gap-1"><TicketIcon size={10}/> {Object.keys(selectedSeats).length} Ticket(s)</span>
             <span className="flex items-center gap-1"><Clock size={10}/> {selectedTrip?.departureTime}</span>
             <span className="flex items-center gap-1"><Calendar size={10}/> {departureDate} {returnDate ? `/ ${returnDate}` : ''}</span>
@@ -536,9 +577,14 @@ const App: React.FC = () => {
                         <p className="text-lg font-black">{t.price.toLocaleString()} <small className="text-[9px]">CFA</small></p>
                       </div>
                    </div>
-                   <div className="flex items-center justify-between gap-2 text-[10px] font-bold text-slate-500 mb-6 bg-slate-50 p-3 rounded-2xl">
-                      <div className="flex items-center gap-1"><Clock size={12} className="text-orange-500"/> {t.departureTime}</div>
-                      <div className="flex items-center gap-1"><Users size={12} className="text-orange-500"/> {t.availableSeats} places libres</div>
+                   <div className="flex flex-col gap-2 mb-6 bg-slate-50 p-4 rounded-2xl">
+                      <div className="flex items-center justify-between text-[10px] font-bold text-slate-500">
+                        <div className="flex items-center gap-1"><MapPinned size={12} className="text-orange-500"/> {origin === "Abidjan" ? originStation : origin} ➔ {destination === "Abidjan" ? destinationStation : destination}</div>
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] font-bold text-slate-500">
+                        <div className="flex items-center gap-1"><Clock size={12} className="text-orange-500"/> {t.departureTime}</div>
+                        <div className="flex items-center gap-1"><Users size={12} className="text-orange-500"/> {t.availableSeats} places libres</div>
+                      </div>
                    </div>
                    <button onClick={() => { setSelectedTrip(t); setBookingStep('SEAT_SELECT'); }} className="w-full bg-orange-600 text-white py-3 rounded-2xl text-[10px] font-bold uppercase tracking-wider shadow-lg shadow-orange-100 active:scale-95 transition-all">
                      Choisir mes sièges
@@ -574,18 +620,26 @@ const App: React.FC = () => {
                       <span className="text-[9px] font-mono font-bold text-slate-400">{t.id}</span>
                     </div>
                     <div className="grid grid-cols-2 gap-y-4">
+                      <div className="col-span-2 mb-2">
+                        <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">Itinéraire & Gares</p>
+                        <p className="font-bold text-xs flex items-center gap-2">
+                           <span className="text-orange-600">{t.originStation}</span> 
+                           <ArrowRight size={12} className="text-slate-300"/> 
+                           <span className="text-slate-800">{t.destinationStation}</span>
+                        </p>
+                      </div>
                       <div>
-                        <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">Itinéraire</p>
-                        <p className="font-bold text-xs truncate">{trip?.origin} ➔ {trip?.destination}</p>
+                        <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">Date du voyage</p>
+                        <p className="font-bold text-xs">{t.travelDate}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">Date / Siège</p>
-                        <p className="font-bold text-xs">{t.travelDate} - N°{t.seatNumber}</p>
+                        <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">Siège</p>
+                        <p className="font-bold text-xs">N° {t.seatNumber}</p>
                       </div>
                       <div className="col-span-2 flex justify-between border-t border-slate-50 pt-4">
                         <div>
                           <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">Passager</p>
-                          <p className="font-bold text-xs text-orange-600 truncate max-w-[120px]">{t.passengerName}</p>
+                          <p className="font-bold text-xs text-orange-600 truncate max-w-[150px]">{t.passengerName}</p>
                         </div>
                         <div className="text-right">
                            <p className="text-[9px] text-slate-400 uppercase font-bold tracking-widest">Prix</p>
