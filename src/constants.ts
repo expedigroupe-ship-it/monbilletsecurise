@@ -1,5 +1,5 @@
 
-import { Company, Trip, Vehicle } from './types';
+import { Company, Trip, Vehicle } from './types.ts';
 
 export const IVORIAN_CITIES = [
   "Abidjan", 
@@ -25,6 +25,21 @@ export const IVORIAN_CITIES = [
   "Yamoussoukro"
 ].sort();
 
+export const ABIDJAN_COMMUNES = [
+  "Adjamé (Gare Centrale)",
+  "Abobo",
+  "Anyama",
+  "Attécoubé",
+  "Cocody",
+  "Koumassi",
+  "Marcory",
+  "Plateau",
+  "Port-Bouët",
+  "Songon",
+  "Treichville",
+  "Yopougon"
+].sort();
+
 export const COMPANIES: Company[] = [
   { id: 'utb', name: 'UTB', logo: 'https://picsum.photos/seed/utb/100/100', rating: 4.5, type: 'TRANSPORT' },
   { id: 'avs', name: 'AVS', logo: 'https://picsum.photos/seed/avs/100/100', rating: 4.2, type: 'BOTH' },
@@ -37,7 +52,8 @@ export const MOCK_TRIPS: Trip[] = [
   { id: '2', origin: 'Abidjan', destination: 'Bouaké', departureTime: '09:30', arrivalTime: '14:30', price: 8000, companyId: 'avs', availableSeats: 12 },
   { id: '3', origin: 'Abidjan', destination: 'San-Pédro', departureTime: '07:00', arrivalTime: '13:00', price: 10000, companyId: 'gti', availableSeats: 18 },
   { id: '4', origin: 'Abidjan', destination: 'Odiénné', departureTime: '06:00', arrivalTime: '18:00', price: 15000, companyId: 'utb', availableSeats: 40 },
-  { id: '5', origin: 'Abidjan', destination: 'Tingrela', departureTime: '05:30', arrivalTime: '19:30', price: 18000, companyId: 'gti', availableSeats: 30 }
+  { id: '5', origin: 'Abidjan', destination: 'Tingrela', departureTime: '05:30', arrivalTime: '19:30', price: 18000, companyId: 'gti', availableSeats: 30 },
+  { id: '6', origin: 'Bouaké', destination: 'Abidjan', departureTime: '14:00', arrivalTime: '19:00', price: 8000, companyId: 'utb', availableSeats: 10 }
 ];
 
 export const MOCK_VEHICLES: Vehicle[] = [
