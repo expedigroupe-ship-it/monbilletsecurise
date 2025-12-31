@@ -1,8 +1,8 @@
 
 import React, { useState, useMemo } from 'react';
-import Layout from './components/Layout';
-import { AppTab, Trip, Ticket, Vehicle, UserRole, UserProfile, BookingStep, Seat, Gender } from './types';
-import { IVORIAN_CITIES, MOCK_TRIPS, COMPANIES, MOCK_VEHICLES } from './constants';
+import Layout from './components/Layout.tsx';
+import { AppTab, Trip, Ticket, Vehicle, UserRole, UserProfile, BookingStep, Seat, Gender } from './types.ts';
+import { IVORIAN_CITIES, MOCK_TRIPS, COMPANIES, MOCK_VEHICLES } from './constants.ts';
 import { 
   MapPin, Calendar, Search, ArrowRight, Star, Clock, Info, ShieldCheck, 
   ChevronRight, MessageSquare, Send, Sparkles, User, Ticket as TicketIcon, 
@@ -10,7 +10,7 @@ import {
   Phone, Mail, Lock, LogOut, ChevronLeft, CreditCard, Wallet, Smartphone,
   UserCheck
 } from 'lucide-react';
-import { getTravelAdvice } from './services/geminiService';
+import { getTravelAdvice } from './services/geminiService.ts';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
