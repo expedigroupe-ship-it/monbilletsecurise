@@ -57,6 +57,8 @@ export interface Ticket {
   bookingDate: string;
   travelDate: string;
   returnDate?: string;
+  originStation?: string;
+  destinationStation?: string;
   qrCode: string;
   status: 'CONFIRMED' | 'USED' | 'CANCELLED';
   price: number;
