@@ -1,14 +1,18 @@
 
-export type UserRole = 'USER' | 'COMPANY_ADMIN' | 'GLOBAL_ADMIN';
+export type UserRole = 'USER' | 'COMPANY_ADMIN' | 'SERVICE_PARTNER' | 'GLOBAL_ADMIN';
 export type Gender = 'MALE' | 'FEMALE';
+export type ServiceType = 'HOTEL' | 'RESIDENCE' | 'RESTAURANT' | 'CAR' | 'MINIBUS' | 'BUS';
 
 export interface UserProfile {
+  id: string;
   firstName: string;
   lastName: string;
   phone: string;
   email?: string;
   role: UserRole;
   gender?: Gender;
+  companyId?: string;
+  joinDate: string;
 }
 
 export interface Company {
@@ -16,7 +20,7 @@ export interface Company {
   name: string;
   logo: string;
   rating: number;
-  type: 'TRANSPORT' | 'RENTAL' | 'BOTH';
+  type: 'TRANSPORT' | 'SERVICE' | 'BOTH' | 'RENTAL';
 }
 
 export interface Trip {
@@ -28,6 +32,7 @@ export interface Trip {
   price: number;
   companyId: string;
   availableSeats: number;
+  vehicleName?: string;
 }
 
 export interface Seat {
@@ -58,6 +63,18 @@ export interface Vehicle {
   image: string;
 }
 
+export interface ServiceListing {
+  id: string;
+  companyId: string;
+  name: string;
+  type: ServiceType;
+  price: number;
+  location: string;
+  description: string;
+  image: string;
+  available: boolean;
+}
+
 export interface Ticket {
   id: string;
   tripId: string;
@@ -83,7 +100,8 @@ export enum AppTab {
   TICKETS = 'tickets',
   PROFILE = 'profile',
   ASSISTANT = 'assistant',
-  ADMIN_DASHBOARD = 'admin_dashboard'
+  ADMIN_DASHBOARD = 'admin_dashboard',
+  PARTNER_DASHBOARD = 'partner_dashboard'
 }
 
 export type BookingStep = 'TRIP_SELECT' | 'SEAT_SELECT' | 'PASSENGER_DETAILS' | 'PAYMENT' | 'CONFIRMATION';
