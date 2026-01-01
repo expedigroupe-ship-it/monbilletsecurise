@@ -36,6 +36,15 @@ export interface Seat {
   status: 'AVAILABLE' | 'OCCUPIED_MALE' | 'OCCUPIED_FEMALE';
 }
 
+export interface PassengerDetail {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  idNumber?: string;
+  gender: Gender;
+  seatNumber: string;
+}
+
 export type VehicleType = 'CAR' | 'BUS' | 'MINIBUS';
 
 export interface Vehicle {
@@ -53,6 +62,8 @@ export interface Ticket {
   id: string;
   tripId: string;
   passengerName: string;
+  passengerPhone: string;
+  passengerIdNumber?: string;
   seatNumber: string;
   bookingDate: string;
   travelDate: string;
@@ -62,6 +73,7 @@ export interface Ticket {
   qrCode: string;
   status: 'CONFIRMED' | 'USED' | 'CANCELLED';
   price: number;
+  gender: Gender;
 }
 
 export enum AppTab {
@@ -74,4 +86,4 @@ export enum AppTab {
   ADMIN_DASHBOARD = 'admin_dashboard'
 }
 
-export type BookingStep = 'TRIP_SELECT' | 'SEAT_SELECT' | 'PAYMENT' | 'CONFIRMATION';
+export type BookingStep = 'TRIP_SELECT' | 'SEAT_SELECT' | 'PASSENGER_DETAILS' | 'PAYMENT' | 'CONFIRMATION';
