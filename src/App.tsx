@@ -7,11 +7,12 @@ import {
   Search, ArrowRight, ShieldCheck, ChevronLeft, MessageCircle, Send, Plus, 
   Car, Phone, Lock, LogOut, Wallet, CheckCircle2, AlertCircle, 
   LayoutDashboard, Building, Sparkles, Mic, Repeat, X, Fingerprint, 
-  Image as ImageIcon, Video, Bell, Users, BarChart3, Activity,
+  ImageIcon, Video, Bell, Users, BarChart3, Activity,
   User, Truck, Store, Ticket as TicketIcon, ChevronRight, Armchair, 
   CreditCard, Key, Smartphone, Settings, Briefcase, Star, Wand2, 
   Camera, Map as MapIcon, DollarSign, Clock, Upload, Coffee, Utensils, Bed, Zap, History, Trash2,
-  MapPin, Wifi, Check, MicOff, Waves, Calendar, PlusCircle, Save, FileText, Film, Eye, TrendingUp, Ban, Loader2
+  MapPin, Wifi, Check, MicOff, Waves, Calendar, PlusCircle, Save, FileText, Film, Eye, TrendingUp, Ban, Loader2,
+  Fingerprint as IDIcon
 } from 'lucide-react';
 import { GoogleGenAI, LiveServerMessage, Modality } from "@google/genai";
 
@@ -176,6 +177,9 @@ const App: React.FC = () => {
   const [departureDate, setDepartureDate] = useState(new Date().toISOString().split('T')[0]);
   const [myTickets, setMyTickets] = useState<Ticket[]>([]);
   const [isBiometricVerifying, setIsBiometricVerifying] = useState(false);
+  
+  // Nouvel état pour les informations des passagers (nom, tel, id)
+  const [passengerDetails, setPassengerDetails] = useState<Record<string, { name: string, phone: string, idNumber: string }>>({});
 
   const [serviceCategory, setServiceCategory] = useState<ServiceCategory>('RENTAL');
 
@@ -434,22 +438,27 @@ const App: React.FC = () => {
   };
 
   const finalizeBooking = () => {
-    const tickets = Object.entries(selectedSeats).map(([num, gender]) => ({
-      id: 'MSB-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
-      tripId: selectedTrip?.id || '',
-      passengerName: user?.firstName || 'Passager',
-      passengerPhone: user?.phone || '',
-      seatNumber: num,
-      bookingDate: new Date().toLocaleDateString(),
-      travelDate: departureDate,
-      originStation: origin === 'Abidjan' ? originCommune : origin,
-      destinationStation: destination === 'Abidjan' ? destinationCommune : destination,
-      qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=MSB-CRYPT-${Math.random()}`,
-      status: 'CONFIRMED' as const,
-      price: selectedTrip?.price || 0,
-      gender
-    }));
-    setMyTickets(prev => [...tickets, ...prev]);
+    const tickets = Object.entries(selectedSeats).map(([num, gender]) => {
+      const pData = passengerDetails[num] || { name: user?.firstName || 'Passager', phone: user?.phone || '', idNumber: '' };
+      return {
+        id: 'MSB-' + Math.random().toString(36).substr(2, 6).toUpperCase(),
+        tripId: selectedTrip?.id || '',
+        passengerName: pData.name || user?.firstName || 'Passager',
+        passengerPhone: pData.phone || user?.phone || '',
+        passengerIdNumber: pData.idNumber || undefined,
+        seatNumber: num,
+        bookingDate: new Date().toLocaleDateString(),
+        travelDate: departureDate,
+        departureTime: selectedTrip?.departureTime || '00:00',
+        originStation: origin === 'Abidjan' ? originCommune : origin,
+        destinationStation: destination === 'Abidjan' ? destinationCommune : destination,
+        qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=MSB-CRYPT-${Math.random()}`,
+        status: 'CONFIRMED' as const,
+        price: selectedTrip?.price || 0,
+        gender
+      };
+    });
+    setMyTickets(prev => [...tickets, ...prev] as Ticket[]);
     setBookingStep('CONFIRMATION');
   };
 
@@ -970,13 +979,68 @@ const App: React.FC = () => {
              <div className="space-y-6">
                 <h3 className="text-xs font-black uppercase text-slate-900 px-2 flex items-center gap-3"><User size={18} className="text-orange-600" /> COORDONNÉES PASSAGER(S)</h3>
                 {Object.keys(selectedSeats).map(seat => (
-                  <div key={seat} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 space-y-4 shadow-sm">
+                  <div key={seat} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 space-y-4 shadow-sm animate-in fade-in">
                      <p className="text-[9px] font-black text-orange-600 uppercase">COORDONNÉES SIÈGE {seat}</p>
-                     <input type="text" placeholder="Nom et prénoms" className="w-full bg-slate-50 py-4 px-6 rounded-2xl text-[11px] font-bold border border-slate-100" />
-                     <input type="tel" placeholder="Numéro de téléphone" className="w-full bg-slate-50 py-4 px-6 rounded-2xl text-[11px] font-bold border border-slate-100" />
+                     
+                     <div className="space-y-3">
+                        <div className="relative">
+                          <input 
+                            type="text" 
+                            placeholder="Nom et prénoms" 
+                            className="w-full bg-slate-50 py-4 px-6 rounded-2xl text-[11px] font-bold border border-slate-100 focus:border-orange-500 focus:bg-white transition-all outline-none" 
+                            value={passengerDetails[seat]?.name || ''}
+                            onChange={e => setPassengerDetails(prev => ({
+                              ...prev, 
+                              [seat]: {...(prev[seat] || {phone: '', idNumber: ''}), name: e.target.value}
+                            }))}
+                          />
+                        </div>
+                        
+                        <div className="relative">
+                          <input 
+                            type="tel" 
+                            placeholder="Numéro de téléphone" 
+                            className="w-full bg-slate-50 py-4 px-6 rounded-2xl text-[11px] font-bold border border-slate-100 focus:border-orange-500 focus:bg-white transition-all outline-none" 
+                            value={passengerDetails[seat]?.phone || ''}
+                            onChange={e => setPassengerDetails(prev => ({
+                              ...prev, 
+                              [seat]: {...(prev[seat] || {name: '', idNumber: ''}), phone: e.target.value}
+                            }))}
+                          />
+                        </div>
+
+                        <div className="relative">
+                          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300">
+                             <IDIcon size={16} />
+                          </div>
+                          <input 
+                            type="text" 
+                            placeholder="Numéro d'identité (facultatif)" 
+                            className="w-full bg-slate-50 py-4 px-6 rounded-2xl text-[11px] font-bold border border-slate-100 focus:border-orange-500 focus:bg-white transition-all outline-none" 
+                            value={passengerDetails[seat]?.idNumber || ''}
+                            onChange={e => setPassengerDetails(prev => ({
+                              ...prev, 
+                              [seat]: {...(prev[seat] || {name: '', phone: ''}), idNumber: e.target.value}
+                            }))}
+                          />
+                          <p className="text-[7px] font-bold text-slate-400 uppercase mt-1 ml-2">CNI, Passeport ou Attestation</p>
+                        </div>
+                     </div>
                   </div>
                 ))}
-                <button onClick={() => setBookingStep('PAYMENT')} className="w-full bg-orange-600 text-white py-5 rounded-[2.5rem] font-black uppercase text-xs shadow-lg">Passer au paiement</button>
+                
+                <div className="p-4 bg-orange-50 rounded-[2rem] border border-orange-100 mb-2">
+                   <p className="text-[8px] font-bold text-orange-600 uppercase text-center leading-relaxed">
+                      Assurez-vous que les noms correspondent aux pièces d'identité lors de l'embarquement.
+                   </p>
+                </div>
+
+                <button 
+                  onClick={() => setBookingStep('PAYMENT')} 
+                  className="w-full bg-orange-600 text-white py-5 rounded-[2.5rem] font-black uppercase text-xs shadow-lg active:scale-95 transition-all"
+                >
+                   Passer au paiement
+                </button>
              </div>
            )}
 
@@ -1012,7 +1076,7 @@ const App: React.FC = () => {
              <div className="text-center py-10 space-y-8 animate-in zoom-in h-full flex flex-col items-center justify-center">
                 <CheckCircle2 size={100} className="text-green-500" />
                 <h2 className="text-3xl font-black uppercase tracking-tighter text-slate-900 leading-tight">Billet MSB<br/>Signé !</h2>
-                <button onClick={() => { setActiveTab(AppTab.TICKETS); setBookingStep('TRIP_SELECT'); setSelectedSeats({}); }} className="w-full bg-slate-900 text-white py-5 rounded-[2.5rem] font-black uppercase text-xs shadow-2xl active:scale-95">VOIR MES BILLETS</button>
+                <button onClick={() => { setActiveTab(AppTab.TICKETS); setBookingStep('TRIP_SELECT'); setSelectedSeats({}); setPassengerDetails({}); }} className="w-full bg-slate-900 text-white py-5 rounded-[2.5rem] font-black uppercase text-xs shadow-2xl active:scale-95">VOIR MES BILLETS</button>
              </div>
            )}
         </div>
@@ -1039,7 +1103,12 @@ const App: React.FC = () => {
                       )}
                    </div>
                    <div className="space-y-4">
-                      <p className="font-black text-[12px] uppercase text-slate-800">{t.passengerName}</p>
+                      <div className="flex flex-col">
+                        <p className="font-black text-[12px] uppercase text-slate-800 leading-none">{t.passengerName}</p>
+                        {t.passengerIdNumber && (
+                          <p className="text-[8px] font-bold text-slate-400 uppercase mt-1 tracking-tight">ID: {t.passengerIdNumber}</p>
+                        )}
+                      </div>
                       <div className="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100">
                          <div><p className="text-[8px] font-black text-slate-400 uppercase mb-1">Itinéraire</p><p className="font-black text-[9px] uppercase">{t.originStation} ➔ {t.destinationStation}</p></div>
                          <div className="text-right"><p className="text-[8px] font-black text-slate-400 uppercase mb-1">Siège/Genre</p><p className="font-black text-[10px] uppercase text-orange-600">{t.seatNumber} ({t.gender === 'MALE' ? 'H' : 'F'})</p></div>
