@@ -49,36 +49,39 @@ export const COMPANIES: Company[] = [
   // Compagnies du Nord (Korhogo / Tingrela)
   { id: 'leopard', name: 'Léopard', logo: 'https://picsum.photos/seed/leo/100/100', rating: 4.3, type: 'TRANSPORT' },
   { id: 'utrako', name: 'UTRAKO', logo: 'https://picsum.photos/seed/utr/100/100', rating: 4.1, type: 'TRANSPORT' },
-  { id: 'mtk', name: 'MTK', logo: 'https://picsum.photos/seed/mtk/100/100', rating: 4.5, type: 'TRANSPORT' },
+  { id: 'mtk', name: 'MTK', logo: 'https://picsum.photos/seed/mtk/100/100', rating: 4.7, type: 'TRANSPORT' },
   { id: 'chonco', name: 'Chonco', logo: 'https://picsum.photos/seed/cho/100/100', rating: 4.0, type: 'TRANSPORT' },
   { id: 'ck_transport', name: 'CK Transport', logo: 'https://picsum.photos/seed/ckk/100/100', rating: 4.4, type: 'TRANSPORT' },
   { id: 'uts', name: 'UTS (Universal)', logo: 'https://picsum.photos/seed/uts/100/100', rating: 4.2, type: 'TRANSPORT' },
   { id: 'sito', name: 'SITO', logo: 'https://picsum.photos/seed/sit/100/100', rating: 3.9, type: 'TRANSPORT' },
-  { id: 'mk_transport', name: 'MK Transport', logo: 'https://picsum.photos/seed/mkt/100/100', rating: 4.2, type: 'TRANSPORT' },
-  
-  { id: 'art_luxury', name: 'ART Luxury Bus', logo: 'https://picsum.photos/seed/art/100/100', rating: 4.9, type: 'TRANSPORT' },
-  { id: 'sbta', name: 'SBTA', logo: 'https://picsum.photos/seed/sbt/100/100', rating: 4.4, type: 'TRANSPORT' },
 ];
 
 export const MOCK_TRIPS: Trip[] = [
-  // ABIDJAN -> KORHOGO (COMPAGNIES DEMANDÉES)
-  { id: 'k-leo-1', origin: 'Abidjan (Adjamé (Gare Centrale))', destination: 'Korhogo', departureTime: '06:30', arrivalTime: '15:30', price: 10000, companyId: 'leopard', availableSeats: 12, vehicleName: 'Léopard Express' },
-  { id: 'k-utr-1', origin: 'Abidjan (Adjamé (Gare Centrale))', destination: 'Korhogo', departureTime: '07:00', arrivalTime: '16:00', price: 10000, companyId: 'utrako', availableSeats: 25, vehicleName: 'UTRAKO Confort' },
-  { id: 'k-mtk-1', origin: 'Abidjan (Yopougon)', destination: 'Korhogo', departureTime: '08:00', arrivalTime: '17:00', price: 9500, companyId: 'mtk', availableSeats: 8, vehicleName: 'MTK Éco' },
-  { id: 'k-cho-1', origin: 'Abidjan (Adjamé (Gare Centrale))', destination: 'Korhogo', departureTime: '06:00', arrivalTime: '15:00', price: 10000, companyId: 'chonco', availableSeats: 35, vehicleName: 'Chonco Trans' },
-  { id: 'k-ck-1', origin: 'Abidjan (Abobo)', destination: 'Korhogo', departureTime: '05:30', arrivalTime: '14:30', price: 10000, companyId: 'ck_transport', availableSeats: 15, vehicleName: 'CK Premium' },
-  { id: 'k-uts-1', origin: 'Abidjan (Koumassi)', destination: 'Korhogo', departureTime: '07:30', arrivalTime: '16:30', price: 11000, companyId: 'uts', availableSeats: 22, vehicleName: 'UTS Global' },
-  { id: 'k-mtk-2', origin: 'Abidjan (Adjamé (Gare Centrale))', destination: 'Korhogo', departureTime: '10:00', arrivalTime: '19:00', price: 9500, companyId: 'mtk', availableSeats: 45, vehicleName: 'MTK Éco' },
-  { id: 'k-leo-2', origin: 'Abidjan (Adjamé (Gare Centrale))', destination: 'Korhogo', departureTime: '13:00', arrivalTime: '22:00', price: 10000, companyId: 'leopard', availableSeats: 5, vehicleName: 'Léopard Night' },
-  { id: 'k-uts-2', origin: 'Abidjan (Adjamé (Gare Centrale))', destination: 'Korhogo', departureTime: '08:45', arrivalTime: '17:45', price: 11000, companyId: 'uts', availableSeats: 18, vehicleName: 'UTS Global' },
+  // MTK - DÉPARTS DEPUIS TOUTES LES COMMUNES D'ABIDJAN VERS KORHOGO
+  { id: 'mtk-adj-1', origin: 'Abidjan (Adjamé (Gare Centrale))', destination: 'Korhogo', departureTime: '06:00', arrivalTime: '15:00', price: 10000, companyId: 'mtk', availableSeats: 30, vehicleName: 'MTK Confort' },
+  { id: 'mtk-abo-1', origin: 'Abidjan (Abobo)', destination: 'Korhogo', departureTime: '06:30', arrivalTime: '15:30', price: 10000, companyId: 'mtk', availableSeats: 45, vehicleName: 'MTK Grand Nord' },
+  { id: 'mtk-yop-1', origin: 'Abidjan (Yopougon)', destination: 'Korhogo', departureTime: '07:00', arrivalTime: '16:00', price: 9500, companyId: 'mtk', availableSeats: 12, vehicleName: 'MTK Éco' },
+  { id: 'mtk-kou-1', origin: 'Abidjan (Koumassi)', destination: 'Korhogo', departureTime: '07:15', arrivalTime: '16:15', price: 10000, companyId: 'mtk', availableSeats: 20, vehicleName: 'MTK Direct' },
+  { id: 'mtk-any-1', origin: 'Abidjan (Anyama)', destination: 'Korhogo', departureTime: '05:45', arrivalTime: '14:45', price: 9000, companyId: 'mtk', availableSeats: 50, vehicleName: 'MTK Express' },
+  { id: 'mtk-coc-1', origin: 'Abidjan (Cocody)', destination: 'Korhogo', departureTime: '08:00', arrivalTime: '17:00', price: 12000, companyId: 'mtk', availableSeats: 15, vehicleName: 'MTK VIP' },
+  { id: 'mtk-tre-1', origin: 'Abidjan (Treichville)', destination: 'Korhogo', departureTime: '07:30', arrivalTime: '16:30', price: 10000, companyId: 'mtk', availableSeats: 25, vehicleName: 'MTK Confort' },
+  { id: 'mtk-pla-1', origin: 'Abidjan (Plateau)', destination: 'Korhogo', departureTime: '08:30', arrivalTime: '17:30', price: 15000, companyId: 'mtk', availableSeats: 10, vehicleName: 'MTK Business' },
+  { id: 'mtk-mar-1', origin: 'Abidjan (Marcory)', destination: 'Korhogo', departureTime: '07:45', arrivalTime: '16:45', price: 11000, companyId: 'mtk', availableSeats: 18, vehicleName: 'MTK Premium' },
+  { id: 'mtk-pb-1', origin: 'Abidjan (Port-Bouët)', destination: 'Korhogo', departureTime: '06:15', arrivalTime: '15:15', price: 10000, companyId: 'mtk', availableSeats: 24, vehicleName: 'MTK Littoral' },
 
-  // KORHOGO -> ABIDJAN (RETOUR)
-  { id: 'rk-leo-1', origin: 'Korhogo', destination: 'Abidjan (Adjamé (Gare Centrale))', departureTime: '06:30', arrivalTime: '15:30', price: 10000, companyId: 'leopard', availableSeats: 30 },
-  { id: 'rk-utr-1', origin: 'Korhogo', destination: 'Abidjan (Adjamé (Gare Centrale))', departureTime: '07:00', arrivalTime: '16:00', price: 10000, companyId: 'utrako', availableSeats: 14 },
-  { id: 'rk-mtk-1', origin: 'Korhogo', destination: 'Abidjan (Yopougon)', departureTime: '08:00', arrivalTime: '17:00', price: 9500, companyId: 'mtk', availableSeats: 20 },
-  { id: 'rk-cho-1', origin: 'Korhogo', destination: 'Abidjan (Adjamé (Gare Centrale))', departureTime: '06:00', arrivalTime: '15:00', price: 10000, companyId: 'chonco', availableSeats: 28 },
-  { id: 'rk-ck-1', origin: 'Korhogo', destination: 'Abidjan (Abobo)', departureTime: '05:30', arrivalTime: '14:30', price: 10000, companyId: 'ck_transport', availableSeats: 5 },
-  { id: 'rk-uts-1', origin: 'Korhogo', destination: 'Abidjan (Koumassi)', departureTime: '07:30', arrivalTime: '16:30', price: 11000, companyId: 'uts', availableSeats: 19 },
+  // MTK - RETOURS DEPUIS KORHOGO VERS TOUTES LES COMMUNES D'ABIDJAN
+  { id: 'mtk-ret-adj-1', origin: 'Korhogo', destination: 'Abidjan (Adjamé (Gare Centrale))', departureTime: '06:00', arrivalTime: '15:00', price: 10000, companyId: 'mtk', availableSeats: 30 },
+  { id: 'mtk-ret-abo-1', origin: 'Korhogo', destination: 'Abidjan (Abobo)', departureTime: '06:30', arrivalTime: '15:30', price: 10000, companyId: 'mtk', availableSeats: 20 },
+  { id: 'mtk-ret-yop-1', origin: 'Korhogo', destination: 'Abidjan (Yopougon)', departureTime: '07:00', arrivalTime: '16:00', price: 9500, companyId: 'mtk', availableSeats: 22 },
+  { id: 'mtk-ret-kou-1', origin: 'Korhogo', destination: 'Abidjan (Koumassi)', departureTime: '07:30', arrivalTime: '16:30', price: 10000, companyId: 'mtk', availableSeats: 15 },
+  { id: 'mtk-ret-coc-1', origin: 'Korhogo', destination: 'Abidjan (Cocody)', departureTime: '08:00', arrivalTime: '17:00', price: 12000, companyId: 'mtk', availableSeats: 10 },
+
+  // AUTRES COMPAGNIES (ABIDJAN <-> KORHOGO)
+  { id: 'k-leo-1', origin: 'Abidjan (Adjamé (Gare Centrale))', destination: 'Korhogo', departureTime: '06:30', arrivalTime: '15:30', price: 10000, companyId: 'leopard', availableSeats: 12 },
+  { id: 'k-utr-1', origin: 'Abidjan (Adjamé (Gare Centrale))', destination: 'Korhogo', departureTime: '07:00', arrivalTime: '16:00', price: 10000, companyId: 'utrako', availableSeats: 25 },
+  { id: 'k-cho-1', origin: 'Abidjan (Adjamé (Gare Centrale))', destination: 'Korhogo', departureTime: '06:00', arrivalTime: '15:00', price: 10000, companyId: 'chonco', availableSeats: 35 },
+  { id: 'k-ck-1', origin: 'Abidjan (Abobo)', destination: 'Korhogo', departureTime: '05:30', arrivalTime: '14:30', price: 10000, companyId: 'ck_transport', availableSeats: 15 },
+  { id: 'k-uts-1', origin: 'Abidjan (Koumassi)', destination: 'Korhogo', departureTime: '07:30', arrivalTime: '16:30', price: 11000, companyId: 'uts', availableSeats: 22 },
 
   // AUTRES TRAJETS
   { id: 't1', origin: 'Abidjan', destination: 'Yamoussoukro', departureTime: '08:00', arrivalTime: '11:00', price: 5000, companyId: 'utb', availableSeats: 25 },
