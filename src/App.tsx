@@ -2,7 +2,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Layout from './components/Layout.tsx';
 import { AppTab, Trip, Ticket, UserRole, UserProfile, BookingStep, Gender, Company } from './types.ts';
-import { IVORIAN_CITIES, ABIDJAN_COMMUNES, MOCK_TRIPS, COMPANIES, MOCK_VEHICLES } from './constants.ts';
+import { IVORIAN_CITIES, ABIDJAN_COMMUNES, MOCK_TRIPS, COMPANIES, MOCK_VEHICLES, MOCK_SERVICES } from './constants.ts';
 import { 
   Search, ArrowRight, ShieldCheck, ChevronLeft, MessageCircle, Send, Plus, 
   Car, Phone, Lock, LogOut, Wallet, CheckCircle2, AlertCircle, 
@@ -541,14 +541,26 @@ const App: React.FC = () => {
     });
   }, [origin, originCommune, destination, destinationCommune]);
 
+  // Filtrage des services par catégorie sélectionnée
+  const filteredServices = useMemo(() => {
+    return MOCK_SERVICES.filter(s => s.type === serviceCategory);
+  }, [serviceCategory]);
+
   if (!isAuthenticated) return (
-    <div className="flex flex-col min-h-screen bg-slate-50 max-w-md mx-auto p-8 justify-center font-sans relative">
-      <div className="flex flex-col items-center mb-10">
+    <div className="flex flex-col min-h-screen bg-slate-50 max-w-md mx-auto p-8 justify-between font-sans relative">
+      <div className="flex flex-col items-center mt-10 mb-6">
         <div className="bg-orange-600 w-20 h-20 rounded-[2rem] flex items-center justify-center shadow-2xl mb-6">
           <ShieldCheck size={40} className="text-white" />
         </div>
-        <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none text-center whitespace-nowrap">MON BILLET SECURISE</h1>
-        <p className="text-[9px] font-bold text-slate-400 mt-2 uppercase tracking-[0.1em] text-center whitespace-nowrap">Votre voyage commence ici, voyagez en toute sérénité</p>
+        <h1 className="text-2xl font-black text-slate-900 tracking-tighter uppercase leading-none text-center">MON BILLET SECURISE</h1>
+        <div className="bg-slate-900 text-white px-3 py-1 rounded-full mt-3 flex items-center gap-2">
+           <div className="w-1.5 h-1.5 bg-green-500 rounded-full"></div>
+           <p className="text-[7px] font-bold uppercase tracking-[0.2em]">
+             {authContext === 'USER' ? 'Espace Voyageur' : 
+              authContext === 'COMPANY_ADMIN' ? 'Espace Compagnie' : 
+              authContext === 'SERVICE_PARTNER' ? 'Espace Prestataire' : 'Espace Admin'}
+           </p>
+        </div>
       </div>
 
       <div className="bg-white rounded-[3rem] p-8 shadow-2xl border border-slate-100 relative z-10">
@@ -592,16 +604,6 @@ const App: React.FC = () => {
             </>
           )}
 
-          {authMode === 'LOGIN' && (
-            <div className="flex justify-between items-center px-2">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="accent-orange-600 w-3 h-3" />
-                <span className="text-[9px] font-bold text-slate-400 uppercase">Se souvenir de moi</span>
-              </label>
-              <button type="button" className="text-[9px] font-black text-orange-600 uppercase">Mot de passe oublié</button>
-            </div>
-          )}
-
           <button type="submit" className="w-full bg-orange-600 text-white py-5 rounded-[2rem] font-black uppercase text-xs shadow-2xl mt-4 border-4 border-orange-600/20 active:scale-95 transition-all">
             {authMode === 'LOGIN' ? 'ENTRER' : "S'INSCRIRE"}
           </button>
@@ -621,24 +623,28 @@ const App: React.FC = () => {
         </form>
       </div>
 
-      <div className="mt-10">
-        <p className="text-[8px] font-black text-slate-300 uppercase text-center mb-4 tracking-[0.2em]">ESPACE PARTENAIRES</p>
-        <div className="flex flex-wrap justify-center gap-3">
+      {/* FOOTER: CHOIX DE L'ESPACE (RÔLE) - TOUT EN BAS */}
+      <div className="mt-10 pb-4">
+        <p className="text-[8px] font-black text-slate-400 uppercase text-center mb-5 tracking-[0.3em]">ACCÉDER À MON ESPACE</p>
+        <div className="grid grid-cols-2 gap-3">
           {[
-            { id: 'USER', label: 'VOYAGEUR' },
-            { id: 'COMPANY_ADMIN', label: 'COMPAGNIE DE TRANSPORT' },
-            { id: 'SERVICE_PARTNER', label: 'PRESTATAIRES' },
-            { id: 'GLOBAL_ADMIN', label: 'ADMIN' }
+            { id: 'USER', label: 'Voyageur', icon: <Users size={18}/> },
+            { id: 'COMPANY_ADMIN', label: 'Compagnie', icon: <Truck size={18}/> },
+            { id: 'SERVICE_PARTNER', label: 'Prestataire', icon: <Store size={18}/> },
+            { id: 'GLOBAL_ADMIN', label: 'Admin', icon: <ShieldCheck size={18}/> }
           ].map(role => (
             <button 
               key={role.id} 
               onClick={() => setAuthContext(role.id as UserRole)} 
-              className={`px-4 py-2 rounded-xl border-2 text-[7px] font-black uppercase transition-all
+              className={`flex items-center gap-3 p-4 rounded-2xl border-2 transition-all group active:scale-95
                 ${authContext === role.id 
-                  ? 'bg-orange-600 border-orange-600 text-white shadow-lg' 
-                  : 'bg-white border-slate-100 text-slate-300 hover:border-orange-200'}`}
+                  ? 'bg-orange-600 border-orange-600 text-white shadow-xl translate-y-[-2px]' 
+                  : 'bg-white border-slate-100 text-slate-400 hover:border-orange-200'}`}
             >
-              {role.label}
+              <div className={`p-2 rounded-xl transition-colors ${authContext === role.id ? 'bg-white/20' : 'bg-slate-50 group-hover:bg-orange-50 group-hover:text-orange-600'}`}>
+                {role.icon}
+              </div>
+              <span className="text-[9px] font-black uppercase text-left leading-none tracking-tighter">{role.label}</span>
             </button>
           ))}
         </div>
@@ -748,31 +754,79 @@ const App: React.FC = () => {
               <button type="submit" className="w-full bg-orange-600 text-white py-4 rounded-[2rem] font-black uppercase text-xs shadow-xl active:scale-95 transition-all">Rechercher</button>
             </form>
           </div>
+        </div>
+      )}
 
-          <div className="space-y-4">
-             <div className="flex justify-between items-end px-2">
-               <h3 className="text-[10px] font-black uppercase text-slate-800 tracking-widest flex items-center gap-2"><History size={12} className="text-orange-500"/> Vos habitudes de voyage</h3>
-               <div className="px-2 py-0.5 bg-green-50 rounded-full text-[6px] font-black text-green-600 uppercase border border-green-100">Prédiction IA</div>
-             </div>
-             <div className="flex gap-3 overflow-x-auto pb-2 custom-scrollbar">
-               {[
-                 { from: 'Abidjan', to: 'Korhogo', price: '10 000' },
-                 { from: 'Korhogo', to: 'Abidjan', price: '10 000' },
-                 { from: 'Abidjan', to: 'Bouaké', price: '8 000' }
-               ].map((pred, idx) => (
-                 <button 
-                    key={idx} 
-                    onClick={() => { setOrigin(pred.from); setDestination(pred.to); }}
-                    className="shrink-0 bg-white p-4 rounded-2xl border border-slate-100 shadow-sm hover:border-orange-200 hover:shadow-md transition-all flex flex-col items-start gap-1 min-w-[140px]"
-                 >
-                    <div className="flex items-center gap-1.5 text-[10px] font-black text-slate-700">
-                      <span>{pred.from}</span> <ArrowRight size={10} className="text-orange-400"/> <span>{pred.to}</span>
-                    </div>
-                    <p className="text-[8px] font-bold text-slate-400 uppercase">Estimé: {pred.price} F</p>
-                 </button>
-               ))}
-             </div>
-          </div>
+      {/* ONGLET SERVICES PARTENAIRES */}
+      {activeTab === AppTab.SERVICES && (
+        <div className="p-6 space-y-6 pb-24 animate-in fade-in">
+           <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-xl font-black uppercase text-slate-900 tracking-tighter">Services Partenaires</h2>
+                <p className="text-[10px] font-black text-orange-600 uppercase">Complétez votre voyage</p>
+              </div>
+              <Sparkles className="text-orange-500 animate-pulse" size={24} />
+           </div>
+
+           {/* Filtres de catégorie */}
+           <div className="flex gap-2 bg-white p-1.5 rounded-[2rem] border border-slate-100 shadow-sm">
+              <button 
+                onClick={() => setServiceCategory('RENTAL')}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[1.5rem] text-[9px] font-black uppercase transition-all ${serviceCategory === 'RENTAL' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400'}`}
+              >
+                <Car size={16}/> Location
+              </button>
+              <button 
+                onClick={() => setServiceCategory('ACCOMMODATION')}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[1.5rem] text-[9px] font-black uppercase transition-all ${serviceCategory === 'ACCOMMODATION' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400'}`}
+              >
+                <Bed size={16}/> Hôtels
+              </button>
+              <button 
+                onClick={() => setServiceCategory('DINING')}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-[1.5rem] text-[9px] font-black uppercase transition-all ${serviceCategory === 'DINING' ? 'bg-slate-900 text-white shadow-lg' : 'text-slate-400'}`}
+              >
+                <Utensils size={16}/> Resto
+              </button>
+           </div>
+
+           {/* Liste des services */}
+           <div className="space-y-6">
+              {filteredServices.map(service => (
+                <div key={service.id} className="bg-white rounded-[2.5rem] overflow-hidden shadow-xl border border-slate-100 group animate-in slide-in-from-bottom">
+                   <div className="h-48 w-full relative">
+                      <img src={service.image} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" alt={service.name} />
+                      <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full flex items-center gap-1 shadow-md">
+                         <Star size={12} className="text-yellow-500 fill-yellow-500" />
+                         <span className="text-[10px] font-black text-slate-900">{service.rating}</span>
+                      </div>
+                      <div className="absolute bottom-4 left-4 bg-slate-900/80 backdrop-blur-md px-4 py-1.5 rounded-full text-white text-[8px] font-black uppercase flex items-center gap-1.5 border border-white/20">
+                         <MapPin size={10} className="text-orange-500" />
+                         {service.location}
+                      </div>
+                   </div>
+                   <div className="p-6 space-y-3">
+                      <div className="flex justify-between items-start">
+                         <h3 className="text-sm font-black uppercase text-slate-900 tracking-tight leading-tight">{service.name}</h3>
+                         <div className="text-right">
+                            <p className="text-lg font-black text-orange-600 leading-none">{service.price}</p>
+                            <p className="text-[7px] font-bold text-slate-400 uppercase">CFA / JOUR</p>
+                         </div>
+                      </div>
+                      <p className="text-[10px] font-bold text-slate-500 leading-relaxed italic line-clamp-2">"{service.desc}"</p>
+                      
+                      <div className="pt-2 flex gap-3">
+                         <button className="flex-1 bg-slate-900 text-white py-3 rounded-2xl font-black uppercase text-[9px] shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2">
+                           <Calendar size={14}/> Réserver
+                         </button>
+                         <button className="p-3 bg-slate-100 text-slate-400 rounded-2xl hover:bg-orange-100 hover:text-orange-600 transition-colors">
+                           <Phone size={16}/>
+                         </button>
+                      </div>
+                   </div>
+                </div>
+              ))}
+           </div>
         </div>
       )}
 
