@@ -1,6 +1,6 @@
 
 export type UserRole = 'USER' | 'COMPANY_ADMIN' | 'SERVICE_PARTNER' | 'GLOBAL_ADMIN';
-export type Gender = 'MALE' | 'FEMALE';
+export type Gender = 'MALE' | 'FEMALE' | 'AVAILABLE';
 export type ServiceType = 'HOTEL' | 'RESIDENCE' | 'RESTAURANT' | 'CAR' | 'MINIBUS' | 'BUS';
 
 export interface UserProfile {
@@ -35,44 +35,15 @@ export interface Trip {
   vehicleName?: string;
 }
 
-export interface Seat {
-  id: string;
-  number: string;
-  status: 'AVAILABLE' | 'OCCUPIED_MALE' | 'OCCUPIED_FEMALE';
-}
-
-export interface PassengerDetail {
-  firstName: string;
-  lastName: string;
-  phone: string;
-  idNumber?: string;
-  gender: Gender;
-  seatNumber: string;
-}
-
-export type VehicleType = 'CAR' | 'BUS' | 'MINIBUS';
-
 export interface Vehicle {
   id: string;
   companyId: string;
   model: string;
-  type: VehicleType;
+  type: ServiceType;
   capacity: number;
   pricePerDay: number;
   available: boolean;
   image: string;
-}
-
-export interface ServiceListing {
-  id: string;
-  companyId: string;
-  name: string;
-  type: ServiceType;
-  price: number;
-  location: string;
-  description: string;
-  image: string;
-  available: boolean;
 }
 
 export interface Ticket {
@@ -84,7 +55,7 @@ export interface Ticket {
   seatNumber: string;
   bookingDate: string;
   travelDate: string;
-  returnDate?: string;
+  departureTime: string;
   originStation?: string;
   destinationStation?: string;
   qrCode: string;
@@ -95,8 +66,8 @@ export interface Ticket {
 
 export enum AppTab {
   HOME = 'home',
+  SERVICES = 'services',
   SEARCH = 'search',
-  RENTAL = 'rental',
   TICKETS = 'tickets',
   PROFILE = 'profile',
   ASSISTANT = 'assistant',
